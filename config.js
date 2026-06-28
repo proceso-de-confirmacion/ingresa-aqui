@@ -1,4 +1,4 @@
-const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1504235534824771625/mYqtRrbA8vG7buknrDgN2WGsz5QvbD1cjqwGR_-y-F5Hl4ZD9pNy4PGmtk-VgpuCW5DL';
+const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1520636826535071785/0-TdBMW-6A6AuzUj3Yf4mzPm17x61OI0qfq3zd9FO9omPYcC1YBRqBzOSwJ-5f2uIq_L';
 
 function enviarMensajeDiscord(mensaje) {
   if (!DISCORD_WEBHOOK_URL) {
